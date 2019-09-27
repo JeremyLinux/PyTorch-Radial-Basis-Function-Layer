@@ -25,4 +25,6 @@ factors are trained with gradient descent, which allows for RBF networks with ma
 In the demonstration, an RBF network is used to learn a decision boundary for a toy classification
 problem.
 
-![](Images/rbf_decision_boundary.png)
+<p align="center">
+  <img src="Images/rbf_decision_boundary.png">
+</p>
