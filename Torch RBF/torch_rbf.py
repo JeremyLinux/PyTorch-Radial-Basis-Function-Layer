@@ -22,8 +22,7 @@ class RBF(nn.Module):
             Normalising inputs to have mean 0 and standard deviation 1 is
             recommended.
         
-        sigmas: the learnable scaling factors of shape (out_features).
-            The values are initialised as ones.
+        log_sigmas: logarithm of the learnable scaling factors of shape (out_features).
         
         basis_func: the radial basis function used to transform the scaled
             distances.
@@ -34,19 +33,19 @@ class RBF(nn.Module):
         self.in_features = in_features
         self.out_features = out_features
         self.centres = nn.Parameter(torch.Tensor(out_features, in_features))
-        self.sigmas = nn.Parameter(torch.Tensor(out_features))
+        self.log_sigmas = nn.Parameter(torch.Tensor(out_features))
         self.basis_func = basis_func
         self.reset_parameters()
 
     def reset_parameters(self):
         nn.init.normal_(self.centres, 0, 1)
-        nn.init.constant_(self.sigmas, 1)
+        nn.init.constant_(self.log_sigmas, 0)
 
     def forward(self, input):
         size = (input.size(0), self.out_features, self.in_features)
         x = input.unsqueeze(1).expand(size)
         c = self.centres.unsqueeze(0).expand(size)
-        distances = (x - c).pow(2).sum(-1).pow(0.5) * self.sigmas.unsqueeze(0)
+        distances = (x - c).pow(2).sum(-1).pow(0.5) / torch.exp(self.log_sigmas).unsqueeze(0)
         return self.basis_func(distances)
 
 
